@@ -1,4 +1,4 @@
-package com.oscar.context.annotations;
+package com.oscar.context;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
