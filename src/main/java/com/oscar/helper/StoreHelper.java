@@ -18,20 +18,7 @@ public class StoreHelper {
         return serialize(store);
     }
 
-    public static List<Store> fillStores(){
-        List stores= new ArrayList<>();
-        stores.add(new Store(1, "Store one", "Street one", 2001, 101));
-        stores.add(new Store(2, "Store two", "Street two", 2002, 201));
-        stores.add(new Store(3, "Store three", "Street three", 2003, 301));
-        stores.add(new Store(4, "Store four", "Street four", 2004, 401));
-        stores.add(new Store(5, "Store five", "Street five", 2005, 501));
-        stores.add(new Store(6, "Store six", "Street six", 2006, 601));
-        stores.add(new Store(7, "Store seven", "Street seven", 2007, 701));
-        stores.add(new Store(8, "Store eight", "Street eight", 2008, 801));
-        stores.add(new Store(9, "Store nine", "Street nine", 2009, 901));
-        stores.add(new Store(10, "Store ten", "Street ten", 2010, 111));
-        return stores;
-    }
+
 
     public static Map<String, String> queryToMap(String query) {
         System.out.println("Parameters "+query); //x=10&y=100
