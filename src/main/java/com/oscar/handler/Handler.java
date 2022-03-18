@@ -1,19 +1,29 @@
 package com.oscar.handler;
 
+import com.oscar.controller.StoreController;
 import com.oscar.dto.Store;
 import com.oscar.helper.StoreHelper;
 import com.oscar.repository.StoreRepository;
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Handler extends RequestHandler{
-    private static StoreRepository storeRepository = new StoreRepository();
-    public static void handleRequests(HttpExchange exchange) throws IOException {
+public class Handler implements HttpHandler {
+
+    static Map<String, Object> map = new HashMap<>();
+
+    public Handler(){
+        map.put("/stores" , new StoreController());
+    }
+
+    public void handle(HttpExchange exchange) {
         String requestMethod = exchange.getRequestMethod();
         try {
             switch (requestMethod){
@@ -47,7 +57,8 @@ public class Handler extends RequestHandler{
         StringBuilder del= new StringBuilder();
         if(requestURI.getQuery()!=null) {
             Map<String, String> queryMap = StoreHelper.queryToMap(requestURI.getQuery());
-            isRemoved = storeRepository.deleteEntry(queryMap);
+            //storeRepository.delete(0);
+            isRemoved = true;
             del.append("removed");
         }else {
             System.out.println("No data to delete ");
@@ -58,20 +69,11 @@ public class Handler extends RequestHandler{
 
     public static void handleGetRequests(HttpExchange exchange) throws Exception {
         //printRequestInfo(exchange);
-        List<Store> list = storeRepository.getStores();
+        StoreController storeController = (StoreController)map.get("/stores");
+        List<Store> list = storeController.getAllStores();
         URI requestURI = exchange.getRequestURI();
-        String response = "";
-        System.out.println("Get method");
-        System.out.println("Query:  " + requestURI.getQuery());
-        if (requestURI.getQuery() != null) {
-            Map<String, String> queryMap = StoreHelper.queryToMap(requestURI.getQuery());
-            System.out.println("Query map size " + queryMap.size());
-            response = StoreHelper.getObjectFilteredJson(queryMap, list);
-        } else {
-            System.out.println("List size " + list.size());
-            response = StoreHelper.fillStoresJson(list);
-        }
-        returnResponse(exchange, response!=null?200:204, response);
+        String response = StoreHelper.fillStoresJson(list);
+        returnResponse(exchange, 200, response);
     }
 
     public static void handlePostRequests(HttpExchange exchange) throws Exception {
@@ -84,7 +86,8 @@ public class Handler extends RequestHandler{
             sb.append((char) i);
         System.out.println("Body " + sb.toString());
         Store storeCreated =StoreHelper.saveData(sb.toString());
-        storeRepository.create(storeCreated);
+        StoreController storeController = (StoreController)map.get("/stores");
+        storeController.createStore(storeCreated);
         returnResponse(exchange, 201, StoreHelper.fillStoreJson(storeCreated));
     }
 
@@ -99,8 +102,18 @@ public class Handler extends RequestHandler{
             sbPut.append((char) j);
         System.out.println("Body " + sbPut.toString());
         Store storeToUpdate =StoreHelper.saveData(sbPut.toString());
-        storeRepository.update(storeToUpdate);
+        StoreController storeController = (StoreController)map.get("/stores");
+        storeController.updateStore(storeToUpdate);
 
         returnResponse(exchange, recordFound?200:204, recordFound?StoreHelper.fillStoreJson(storeToUpdate):null);
+    }
+
+    public static void returnResponse(HttpExchange httpExchange, int responseCode, String result) throws IOException {
+        int responseLength = result != null ? result.length() : -1;
+        httpExchange.sendResponseHeaders(responseCode, responseLength);
+        OutputStream outputStream = httpExchange.getResponseBody();
+        if(204 != responseCode)
+            outputStream.write(result.getBytes());
+        outputStream.close();
     }
 }

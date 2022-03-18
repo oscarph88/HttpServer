@@ -34,7 +34,7 @@ public class StoreHelper {
         return result;
     }
 
-    public static String getObjectFilteredJson(Map<String, String> parametersMap, List<Store> stores) throws Exception {
+    /*public static String getObjectFilteredJson(Map<String, String> parametersMap, List<Store> stores) throws Exception {
         //Integer total=0;
         List<Integer> ids= new ArrayList<>();
         List<Store> storesFiltered= new ArrayList<>();
@@ -54,7 +54,7 @@ public class StoreHelper {
 
         System.out.println("List filtered size "+storesFiltered.size());
         return storesFiltered.size()>0?StoreHelper.serializeList(storesFiltered):null;
-    }
+    }*/
 
     public static Store saveData(String body) throws Exception {
         Store newStore= unSerialize(body);
