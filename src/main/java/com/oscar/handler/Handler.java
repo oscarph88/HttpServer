@@ -1,31 +1,40 @@
 package com.oscar.handler;
 
+import com.oscar.context.ApplicationContext;
+import com.oscar.context.annotations.Component;
 import com.oscar.controller.StoreController;
 import com.oscar.dto.Store;
 import com.oscar.helper.StoreHelper;
-import com.oscar.repository.StoreRepository;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+@Component
 public class Handler implements HttpHandler {
 
-    static Map<String, Object> map = new HashMap<>();
+    private Map<String, Class<?>> controllersPath;
+    private Map<String, Method> controllerMethods;
+    private Map<String, Object> map;
 
     public Handler(){
-        map.put("/stores" , new StoreController());
+        controllersPath = ApplicationContext.getMappingControllers();
+        controllerMethods = ApplicationContext.getMappingMethods();
     }
 
     public void handle(HttpExchange exchange) {
-        String requestMethod = exchange.getRequestMethod();
         try {
+            URI requestURI = exchange.getRequestURI();
+            Class<?> controllerClass = controllersPath.get(requestURI.toString());
+            Object controllerObject = ApplicationContext.getBean(controllerClass);
+            Method method = controllerMethods.get(requestURI.toString());
+            method.invoke(controllerObject, null);
+            String requestMethod = exchange.getRequestMethod();
             switch (requestMethod){
                 case "GET":
                     handleGetRequests(exchange);
@@ -48,7 +57,7 @@ public class Handler implements HttpHandler {
         }
     }
 
-    public static void handleDeleteRequests(HttpExchange exchange) throws Exception {
+    public void handleDeleteRequests(HttpExchange exchange) throws Exception {
         //printRequestInfo(exchange);
         boolean isRemoved=false;
         URI requestURI = exchange.getRequestURI();
@@ -67,7 +76,7 @@ public class Handler implements HttpHandler {
         returnResponse(exchange, isRemoved?200:204, isRemoved?del.toString():null);
     }
 
-    public static void handleGetRequests(HttpExchange exchange) throws Exception {
+    public void handleGetRequests(HttpExchange exchange) throws Exception {
         //printRequestInfo(exchange);
         StoreController storeController = (StoreController)map.get("/stores");
         List<Store> list = storeController.getAllStores();
@@ -76,7 +85,7 @@ public class Handler implements HttpHandler {
         returnResponse(exchange, 200, response);
     }
 
-    public static void handlePostRequests(HttpExchange exchange) throws Exception {
+    public void handlePostRequests(HttpExchange exchange) throws Exception {
         //printRequestInfo(exchange);
         System.out.println("Post method");
         StringBuilder sb = new StringBuilder();
@@ -91,7 +100,7 @@ public class Handler implements HttpHandler {
         returnResponse(exchange, 201, StoreHelper.fillStoreJson(storeCreated));
     }
 
-    public static void handlePutRequests(HttpExchange exchange) throws Exception {
+    public void handlePutRequests(HttpExchange exchange) throws Exception {
         //printRequestInfo(exchange);
         boolean recordFound=false;
         System.out.println("Put method");
@@ -108,7 +117,7 @@ public class Handler implements HttpHandler {
         returnResponse(exchange, recordFound?200:204, recordFound?StoreHelper.fillStoreJson(storeToUpdate):null);
     }
 
-    public static void returnResponse(HttpExchange httpExchange, int responseCode, String result) throws IOException {
+    public void returnResponse(HttpExchange httpExchange, int responseCode, String result) throws IOException {
         int responseLength = result != null ? result.length() : -1;
         httpExchange.sendResponseHeaders(responseCode, responseLength);
         OutputStream outputStream = httpExchange.getResponseBody();
