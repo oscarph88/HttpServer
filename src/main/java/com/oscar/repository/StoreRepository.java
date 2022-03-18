@@ -3,16 +3,14 @@ package com.oscar.repository;
 import com.oscar.dto.Store;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public class StoreRepository {
 
-    private static List<Store> stores= init();
+    private static List<Store> stores = init();
 
-    private static List<Store> init(){
-        List<Store> storeList= new ArrayList<>();
+    private static List<Store> init() {
+        List<Store> storeList = new ArrayList<>();
         storeList.add(new Store(1, "Store one", "Street one", 2001, 101));
         storeList.add(new Store(2, "Store two", "Street two", 2002, 201));
         storeList.add(new Store(3, "Store three", "Street three", 2003, 301));
@@ -26,43 +24,39 @@ public class StoreRepository {
         return storeList;
     }
 
-    public List<Store> getStores(){
+    public List<Store> getStores() {
         return stores;
     }
 
-    public boolean deleteEntry(Map<String, String> queryMap) {
-        boolean isRemoved = false;
-        System.out.println("Query map size "+queryMap.size());
-        for(String param: queryMap.keySet()) {
-            for (Iterator<Store> it = stores.iterator(); it.hasNext(); ) {
-                Store aStore = it.next();
-                if (Integer.parseInt(queryMap.get(param)) == aStore.getId()) {
-                    it.remove();
-                   // del.append(queryMap.get(param) + " ");
-                    isRemoved = true;
-                }
-            }
-        }
-        return isRemoved;
+    public void delete(int idStore) {
+        stores.removeIf(aStore -> idStore == aStore.getId());
     }
 
-    public void create(Store storeCreated) {
+    public Store create(Store storeCreated) {
         stores.add(storeCreated);
-        System.out.println("New size save "+stores.size());
+        System.out.println("New size save " + stores.size());
+        return storeCreated;
     }
 
-    public boolean update(Store storeToUpdate) {
-        boolean recordFound = false;
-        for(Store s: stores){
-            if(s.getId()==storeToUpdate.getId()){
+    public Store update(Store storeToUpdate) {
+        Store store = null;
+        for (Store s : stores) {
+            if (s.getId() == storeToUpdate.getId()) {
                 s.setName(storeToUpdate.getName());
                 s.setAddress(storeToUpdate.getAddress());
                 s.setOpeningYear(storeToUpdate.getOpeningYear());
                 s.setMarketValue(storeToUpdate.getMarketValue());
-                recordFound=true;
+                store = s;
             }
         }
-        System.out.println("New size after updated "+stores.size());
-        return recordFound;
+        System.out.println("New size after updated " + stores.size());
+        return store;
+    }
+
+    public Store getStore(int idStore) {
+        return stores.stream()
+                .filter(store -> store.getId() == idStore)
+                .findFirst()
+                .orElse(null);
     }
 }
