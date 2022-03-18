@@ -46,7 +46,7 @@ public class StoreHelper {
         }
         return result;
     }
-    //tests
+
     public static String getObjectFilteredJson(Map<String, String> parametersMap, List<Store> stores) throws Exception {
         //Integer total=0;
         List<Integer> ids= new ArrayList<>();
@@ -73,28 +73,6 @@ public class StoreHelper {
         Store newStore= unSerialize(body);
         System.out.println("Store created");
         return newStore;
-    }
-
-    //tests
-    public static String generateOutput(List<Store> list){
-        StringBuilder sb= new StringBuilder();
-        for(Store l: list){
-            sb.append(l.getId());
-            sb.append(l.getName());
-            sb.append(l.getAddress());
-            sb.append(l.getOpeningYear());
-            sb.append(l.getMarketValue());
-        }
-        return sb.toString();
-    }
-
-    //tests
-    public static Integer calculateParams(Map<String, String> parametersMap){
-        Integer total=0;
-        for(String param: parametersMap.keySet())
-            total+=(parametersMap.get(param)!=null)?Integer.valueOf(parametersMap.get(param)):0;
-
-        return total;
     }
 
     public static String serialize(Store s) throws Exception {

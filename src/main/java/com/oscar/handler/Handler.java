@@ -31,8 +31,7 @@ public class Handler extends RequestHandler{
                     break;
                 default:
                     System.out.println("Not method allowed");
-                    String responseNA = "This is the response for not allowed method " ;
-                    returnResponse(exchange, 405, responseNA);
+                    returnResponse(exchange, 405, "This is the response for not allowed method ");
             }
         } catch (Exception e) {
             e.printStackTrace();
