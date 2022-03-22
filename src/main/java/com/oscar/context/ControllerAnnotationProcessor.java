@@ -25,7 +25,9 @@ public class ControllerAnnotationProcessor  extends AbstractClassLoader{
             for (int i = 0; i < size; i++) {
                 int index = classes[i].getName().indexOf(".");
                 String className = classes[i].getName().substring(0, index);
-                String classNamePath = packageName + "." + className;
+                String parentFileDirectory= classes[i].getParentFile().getName();
+                String classNamePath = packageName + "." + parentFileDirectory + "." + className;
+                //String classNamePath = packageName + "." + className;
                 Class<?> clazz = Class.forName(classNamePath);
                 if(clazz.isAnnotationPresent(RestController.class)) {
                     RestController annotation = clazz.getAnnotation(RestController.class);
